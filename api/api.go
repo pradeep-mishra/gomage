@@ -1,15 +1,14 @@
 package api
 
 import (
+	"gomage/optimize"
+
 	"github.com/gofiber/fiber/v2"
 )
 
-func Optimize(c *fiber.Ctx) error {
+func Optimize(c *fiber.Ctx) {
 	imgid := c.Params("imgid")
-	data := fiber.Map{
-		"status": 200,
-		"imageId": imgid,
-		"notice": "Api called successfully",
-	}
-	return c.Status(fiber.StatusOK).JSON(data)
+	img := optimize.Flip(imgid)
+	c.Set("Content-Type", "image/png")
+	c.Write(img)
 }
