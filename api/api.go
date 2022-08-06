@@ -162,16 +162,17 @@ func ApplyFilter(img *vips.ImageRef, filter string, val string) (*vips.ImageRef,
 
 func getSmartCropParams(val string) (int, int, vips.Interesting, error) {
 	params := strings.Split(val, ",")
+	errorMsg := errors.New("value for smartcrop filter is invalid. valid args is width,height,(crop interest)")
 	if len(params) < 2 {
-		return 0, 0, vips.InterestingNone, errors.New("value for smartcrop filter is invalid. valid args is width,height,(crop interest)")
+		return 0, 0, vips.InterestingNone, errorMsg
 	}
 	width, err := strconv.Atoi(params[0])
 	if err != nil {
-		return 0, 0, vips.InterestingNone, errors.New("value for smartcrop filter is invalid. valid args is width,height,(crop interest)")
+		return 0, 0, vips.InterestingNone, errorMsg
 	}
 	height, err := strconv.Atoi(params[1])
 	if err != nil {
-		return 0, 0, vips.InterestingNone, errors.New("value for smartcrop filter is invalid. valid args is width,height,(crop interest)")
+		return 0, 0, vips.InterestingNone, errorMsg
 	}
 
 	cropType := "centre"
