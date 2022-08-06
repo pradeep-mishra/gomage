@@ -1,27 +1,30 @@
 package filters
 
 import (
-	"fmt"
-	"os"
-
 	"github.com/davidbyttow/govips/v2/vips"
 )
 
-func checkError(err error) {
-	if err != nil {
-		fmt.Println("error:", err)
-		os.Exit(1)
-	}
-}
-
-func Flip(img *vips.ImageRef, direction string) *vips.ImageRef {
-	//fmt.Println("direction", direction)
+func Flip(img *vips.ImageRef, direction string) (*vips.ImageRef, error) {
 	if direction == "h" {
 		err := img.Flip(vips.DirectionHorizontal)
-		checkError(err)
-		return img
+		if err != nil {
+			return nil, err
+		}
+		return img, nil
 	}
 	err := img.Flip(vips.DirectionVertical)
-	checkError(err)
-	return img
+	if err != nil {
+		return nil, err
+	}
+	return img, nil
+}
+
+func Pixlate(img *vips.ImageRef, factor float64) (*vips.ImageRef, error) {
+	err := vips.Pixelate(img, factor)
+	return img, err
+}
+
+func SmartCrop(img *vips.ImageRef, width int, height int, crop vips.Interesting) (*vips.ImageRef, error) {
+	err := img.SmartCrop(width, height, crop)
+	return img, err
 }
