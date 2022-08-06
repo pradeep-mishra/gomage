@@ -25,7 +25,7 @@ func Shutdown() {
 	vips.Shutdown()
 }
 
-func checkError(err error, c *fiber.Ctx) {
+func checkError(err error, c *fiber.Ctx) error {
 	if err != nil {
 		//fmt.Println("error:", err)
 		c.Set("Content-Type", "application/json")
@@ -33,6 +33,7 @@ func checkError(err error, c *fiber.Ctx) {
 			"error": err.Error(),
 		})
 	}
+	return nil
 }
 
 func extractError(err error) []error {
@@ -57,7 +58,7 @@ func mapError(field string) []error {
 	return errs
 }
 
-func Optimize(c *fiber.Ctx) {
+func Optimize(c *fiber.Ctx) error {
 	imgid := c.Params("imgid")
 	queryArgs := c.Context().QueryArgs().String()
 	if len(queryArgs) >= 1 {
@@ -65,27 +66,23 @@ func Optimize(c *fiber.Ctx) {
 	}
 	img, err := loadImage(imgid)
 	if err != nil {
-		checkError(err, c)
-		return
+		return checkError(err, c)
 	}
 	q := new(QueryParams)
 
 	if err = c.QueryParser(q); err != nil {
-		checkError(err, c)
-		return
+		return checkError(err, c)
 	}
 
 	if err = validate.Struct(q); err != nil {
 		errs := extractError(err)
 		if len(errs) > 0 {
-			checkError(errs[0], c)
-			return
+			return checkError(errs[0], c)
 		}
 	}
 	qv := structs.Map(q)
 	if err = applyFilter(qv, img); err != nil {
-		checkError(err, c)
-		return
+		return checkError(err, c)
 	}
 
 	ep := vips.NewDefaultJPEGExportParams()
@@ -93,6 +90,7 @@ func Optimize(c *fiber.Ctx) {
 	checkError(err, c)
 	c.Set("Content-Type", "image/png")
 	c.Write(imgbytes)
+	return nil
 }
 
 func applyFilter(queryMap map[string]interface{}, img *vips.ImageRef) error {
