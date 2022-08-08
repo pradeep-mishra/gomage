@@ -36,7 +36,6 @@ http://localhost:3300/v1/optimize/s.jpg?zoom=2
      - 90
      - 180
      - 270
-     - 0
    - e.g. rotate=90
 5. **flip** = h or v
    - flip the image vertically or horizontally
@@ -50,7 +49,7 @@ http://localhost:3300/v1/optimize/s.jpg?zoom=2
    - e.g. sharpen=5,1.0,2.0
 7. **modulate** = brightness<number>,saturation<number>?,hue<degree>?
    - transforms the image using brightness, saturation, hue rotation
-   - e.g = modulate=2,2,180
+   - e.g. modulate=2,2,180
 8. **label** = text<string>,font<stringr>,width<number>,height<number>,x-location<number>,y-location<number>,opacity<float>,color<r:g:b>
    - add text on top of image
    - e.g. label=hello,arial,50,40,10,10,1,185:53:53
