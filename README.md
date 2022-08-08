@@ -23,20 +23,20 @@ http://localhost:3300/v1/optimize/s.jpg?zoom=2
    - width and height divided by comma in px
    - interest can be any of these
      - entropy
-       -- center
-       -- attention
-       -- high
-       -- low
-       -- last
-       -- none
+     - center
+     - attention
+     - high
+     - low
+     - last
+     - none
    - e.g. crop=50,50,center
 4. **rotate** = angle
    - rotate the image
    - allowed angles are
-     -- 90
-     -- 180
-     -- 270
-     -- 0
+     - 90
+     - 180
+     - 270
+     - 0
    - e.g. rotate=90
 5. **flip** = h or v
    - flip the image vertically or horizontally
