@@ -22,13 +22,13 @@ http://localhost:3300/v1/optimize/s.jpg?zoom=2
    - crop the image
    - width and height divided by comma in px
    - interest can be any of these
-     -- entropy
-     -- center
-     -- attention
-     -- high
-     -- low
-     -- last
-     -- none
+     - entropy
+       -- center
+       -- attention
+       -- high
+       -- low
+       -- last
+       -- none
    - e.g. crop=50,50,center
 4. **rotate** = angle
    - rotate the image
