@@ -71,3 +71,8 @@ func Label(img *vips.ImageRef, label *vips.LabelParams) (*vips.ImageRef, error) 
 	err := img.Label(label)
 	return img, err
 }
+
+func Zoom(img *vips.ImageRef, zoomBy int) (*vips.ImageRef, error) {
+	err := img.Zoom(zoomBy, zoomBy)
+	return img, err
+}

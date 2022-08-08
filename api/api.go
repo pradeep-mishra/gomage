@@ -54,11 +54,13 @@ func mapError(field string) []error {
 	case "Flip":
 		errs = append(errs, errors.New("value for flip filter is invalid. valid param is h or v"))
 	case "Pixlate":
-		errs = append(errs, errors.New("value for pixlate filter is invalid. valid param is a float between 0 to 100"))
+		errs = append(errs, errors.New("value for pixlate filter is invalid. valid param is a number between 0 to 100"))
 	case "SmartCrop":
 		errs = append(errs, errors.New("value for smartcrop filter is invalid. valid param is width,height,(intresting)"))
 	case "Rotate":
 		errs = append(errs, errors.New("value for rotate filter is invalid. valid param is 0 90 180 270"))
+	case "Zoom":
+		errs = append(errs, errors.New("value for zoom filter is invalid. valid param is a number between 1 to 10"))
 
 	}
 	return errs
@@ -68,7 +70,7 @@ func Optimize(c *fiber.Ctx) error {
 	imgid := c.Params("imgid")
 	queryArgs := c.Context().QueryArgs().String()
 	if len(queryArgs) >= 1 {
-		fmt.Println(c.Context().QueryArgs())
+		fmt.Println("query => ", c.Context().QueryArgs())
 	}
 	img, err := loadImage(imgid)
 	if err != nil {
@@ -95,22 +97,31 @@ func Optimize(c *fiber.Ctx) error {
 	ep := vips.NewDefaultJPEGExportParams()
 	imgbytes, _, err := img.Export(ep)
 	checkError(err, c)
-	c.Set("Content-Type", "image/png")
+	c.Set("Content-Type", "image/jpeg")
 	c.Write(imgbytes)
 	return nil
 }
 
 func applyFilter(queryMap map[string]interface{}, img *vips.ImageRef) error {
 	for filter, val := range queryMap {
-		if reflect.TypeOf(val).Kind() == reflect.Uint8 && fmt.Sprintf("%d", val.(uint8)) == "0" {
-			fmt.Println("skipping filter:", filter)
+		if reflect.TypeOf(val).Kind() == reflect.Uint8 && val.(uint8) == 0 {
+			//fmt.Println("skipping filter:", filter)
+			continue
+		}
+		if reflect.TypeOf(val).Kind() == reflect.Int && val.(int) == 0 {
+			//fmt.Println("skipping filter:", filter)
+			continue
+		}
+
+		if reflect.TypeOf(val).Kind() == reflect.Float64 && val.(float64) == float64(0) {
+			//fmt.Println("skipping filter:", filter)
 			continue
 		}
 		if reflect.TypeOf(val).Kind() == reflect.String && val == "" {
-			fmt.Println("skipping filter:", filter)
+			//fmt.Println("skipping filter:", filter)
 			continue
 		}
-		fmt.Println("KV Pair: ", filter, val, reflect.TypeOf(val))
+		fmt.Println("query param: ", filter, val, reflect.TypeOf(val))
 		_, err := ApplyFilter(img, filter, getValue(val))
 		if err != nil {
 			return err
@@ -140,7 +151,7 @@ func getValue(val interface{}) string {
 }
 
 func ApplyFilter(img *vips.ImageRef, filter string, val string) (*vips.ImageRef, error) {
-	fmt.Println("filter:", filter, "is val:", val, reflect.TypeOf(val))
+	//fmt.Println("filter:", filter, "is val:", val, reflect.TypeOf(val))
 	switch filter {
 	case "Flip":
 		fmt.Println("calling flip", val)
@@ -172,7 +183,6 @@ func ApplyFilter(img *vips.ImageRef, filter string, val string) (*vips.ImageRef,
 	case "Rotate":
 		angle, err := strconv.Atoi(val)
 		if err != nil {
-			fmt.Println("error:", err, val)
 			return nil, errors.New("value for rotate filter is invalid. valid param is an integer")
 		}
 		fmt.Println("call rotate angle", angle)
@@ -181,11 +191,10 @@ func ApplyFilter(img *vips.ImageRef, filter string, val string) (*vips.ImageRef,
 		fmt.Println("calling scale", val)
 		scale, err := strconv.ParseFloat(val, 64)
 		if err != nil {
-			fmt.Println("scale error:", err, val)
 			return nil, err
 		}
 		if err != nil {
-			return nil, errors.New("value for scale filter is invalid. valid param is a float")
+			return nil, errors.New("value for scale filter is invalid. valid param is a number")
 		}
 		return filters.Scale(img, scale)
 	case "Repeat":
@@ -212,6 +221,16 @@ func ApplyFilter(img *vips.ImageRef, filter string, val string) (*vips.ImageRef,
 			return nil, err
 		}
 		return filters.Label(img, label)
+	case "Zoom":
+		fmt.Println("calling zoom", val)
+		zoomBy, err := strconv.Atoi(val)
+		if err != nil {
+			return nil, err
+		}
+		if err != nil {
+			return nil, errors.New("value for zoom filter is invalid. valid param is a number")
+		}
+		return filters.Zoom(img, zoomBy)
 	default:
 		return img, nil
 	}

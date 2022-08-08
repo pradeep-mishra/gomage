@@ -10,6 +10,7 @@ type QueryParams struct {
 	Repeat    string  `query:"repeat"`
 	Modulate  string  `query:"modulate"`
 	Label     string  `query:"label"`
+	Zoom      int     `query:"zoom" validate:"omitempty,min=1,max=10"`
 }
 
 type SmartCrop struct {
