@@ -94,16 +94,31 @@ func Optimize(c *fiber.Ctx) error {
 		return checkError(err, c)
 	}
 
-	ep := vips.NewDefaultJPEGExportParams()
-	imgbytes, _, err := img.Export(ep)
+	exportParams, contentType := getFormat(q.Format)
+
+	imgbytes, _, err := img.Export(exportParams)
 	checkError(err, c)
-	c.Set("Content-Type", "image/jpeg")
+	c.Set("Content-Type", contentType)
 	c.Write(imgbytes)
 	return nil
 }
 
+func getFormat(format string) (*vips.ExportParams, string) {
+	switch format {
+	case "png":
+		return vips.NewDefaultPNGExportParams(), "image/png"
+	case "webp":
+		return vips.NewDefaultWEBPExportParams(), "image/webp"
+	default:
+		return vips.NewDefaultJPEGExportParams(), "image/jpeg"
+	}
+}
+
 func applyFilter(queryMap map[string]interface{}, img *vips.ImageRef) error {
 	for filter, val := range queryMap {
+		if filter == "format" {
+			continue
+		}
 		if reflect.TypeOf(val).Kind() == reflect.Uint8 && val.(uint8) == 0 {
 			//fmt.Println("skipping filter:", filter)
 			continue
@@ -199,7 +214,7 @@ func ApplyFilter(img *vips.ImageRef, filter string, val string) (*vips.ImageRef,
 		return filters.Scale(img, scale)
 	case "Repeat":
 		fmt.Println("calling repeat", val)
-		x, y, err := getReplicateParams(val)
+		x, y, err := getRepeatParams(val)
 		if err != nil {
 			return nil, err
 		}
@@ -314,7 +329,7 @@ func getSharpenParams(val string) (float64, float64, float64, error) {
 	return sigma, threshold, slope, nil
 }
 
-func getReplicateParams(val string) (int, int, error) {
+func getRepeatParams(val string) (int, int, error) {
 	params := strings.Split(val, ",")
 	errorMsg := errors.New("value for replicate filter is invalid. valid param is x,y")
 	if len(params) < 2 {

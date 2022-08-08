@@ -11,6 +11,7 @@ type QueryParams struct {
 	Modulate  string  `query:"modulate"`
 	Label     string  `query:"label"`
 	Zoom      int     `query:"zoom" validate:"omitempty,min=1,max=10"`
+	Format    string  `query:"format" validate:"omitempty,oneof=jpg jpeg png webp"`
 }
 
 type SmartCrop struct {
