@@ -2,6 +2,19 @@
 
 #### Image optimisation server written in golang
 
+##### Third party libraries used
+
+- "github.com/davidbyttow/govips/v2/vips"
+- "github.com/fatih/structs"
+- "github.com/go-playground/validator/v10"
+- "github.com/gofiber/fiber/v2"
+
+##### Requirements
+
+- libvips 8.10+
+- C compatible compiler such as gcc 4.6+ or clang 3.0+
+- Go 1.14+
+
 #### API usage
 
 GET http://localhost:3300/v1/optimize/s.jpg?filters
@@ -66,3 +79,5 @@ http://localhost:3300/v1/optimize/s.jpg?zoom=2
     - y-number is number of times to repeat vertically
     - number can be between 1 to 10
     - e.g. repeat=5,2
+
+![To install vips on your machine](https://github.com/davidbyttow/govips#dependencies)
